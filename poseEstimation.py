@@ -51,7 +51,9 @@ rotationVecs,translationVecs, _objectCorners = aruco.estimatePoseSingleMarkers(c
 #The coordinates of the four corners of the marker in its own coordinate system are:
 #(-markerLength/2, markerLength/2, 0), (markerLength/2, markerLength/2, 0),
 #(markerLength/2, -markerLength/2, 0), (-markerLength/2, -markerLength/2, 0)
-length_of_axis = 0.1
+
+###Draw coordinate system
+length_of_axis = 0.1#supposed length of the axis in the frame 
 imaxis = aruco.drawDetectedMarkers(resized.copy(), corners, ids)
 try:
     #alternative to try is a if condition which might be faster https://stackoverflow.com/questions/2522005/cost-of-exception-handlers-in-python 

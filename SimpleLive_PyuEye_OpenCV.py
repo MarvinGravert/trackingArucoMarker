@@ -41,7 +41,44 @@ import cv2
 import sys
 import time
 import math
-
+from cv2 import aruco
+# ---------------------------------------------------------------------------------------------------------------------------------------
+#Camera constants
+cameraMatrix=np.array([[1.39600404e+03, 0.00000000e+00, 7.31255395e+02],
+ [0.00000000e+00, 1.39600404e+03, 6.62993401e+02],
+ [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]])
+distortionMatrix=np.array([[-0.07742588],
+ [ 0.03566092],
+ [ 0.00470899],
+ [-0.00515483],
+ [-0.82473463],
+ [ 0.09419457],
+ [ 0.06327745],
+ [-0.99720608],
+ [ 0.        ],
+ [ 0.        ],
+ [ 0.        ],
+ [ 0.        ],
+ [ 0.        ],
+ [ 0.        ]])
+#Marker Settings
+aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
+size_of_marker =  0.05#0.06 measurement in meter
+parameters =  aruco.DetectorParameters_create()
+# ---------------------------------------------------------------------------------------------------------------------------------------
+# Functions
+def estimatePose(frame):
+    """
+    Estimates the pose of the marker(s), which are detected beforehand in the frame
+    input
+    frame: grayscaled imagine potentially including an marker
+    output: roationVector and translationVector of the markers detected
+    """
+    corners, ids, rejectedImgPoints = aruco.detectMarkers(frame, aruco_dict, parameters=parameters)
+    rotationVecs,translationVecs, _objectCorners = aruco.estimatePoseSingleMarkers(corners, size_of_marker , cameraMatrix, distortionMatrix)
+    return rotationVecs,translationVecs
+def detectMarker(frame):
+    pass
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 # Variables
