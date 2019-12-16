@@ -13,15 +13,17 @@ aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
 #   size of arucuo squares(relative size matters), aruco_dict object as reference
 #   for the markers
 board = aruco.CharucoBoard_create(5, 7, 1, .6, aruco_dict)
-imboard = board.draw((2000, 2000))#returns ready to be printed board with given size
-#cv2.imwrite("calibrationChessboard.tiff", imboard)#write to file
+imboard = board.draw((4000, 4000))#returns ready to be printed board with given size
+# cv2.imwrite("calibrationChessboard.tiff", imboard)#write to file
 # fig = plt.figure()
+
 # plt.imshow(imboard,cmap=matplotlib.cm.gray,  interpolation = "nearest")
 # plt.show()
 
 ###READ IN CALIBRATION PICTURES
-datadir="calibrationImages/"
-images=np.array([datadir + f for f in os.listdir(datadir) if f.endswith(".jpg") ])
+# datadir="calibrationImages/"
+datadir="new/"
+images=np.array([datadir + f for f in os.listdir(datadir) if f.endswith(".png") ])
 
 def scaleImage(img,scale):
     """
@@ -54,9 +56,9 @@ def read_chessboards(images):
         print("=> Processing image {0}".format(im))
         frame = cv2.imread(im)       
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        resized=scaleImage(gray,10)
+        #resized=scaleImage(gray,10)
         #parameters=cv2.aruco.DetectorParameters_create()#modification
-        corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(resized, aruco_dict)
+        corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(gray, aruco_dict)
         """ PLOT THE DETECTED ONES
         frame_markers=aruco.drawDetectedMarkers(resized.copy(), corners, ids)
         

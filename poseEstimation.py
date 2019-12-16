@@ -20,8 +20,9 @@ def scaleImage(img,scale):
 
 aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
 # frame = cv2.imread("calibrationImages/IMG_20191210_183704.jpg")
-#frame = cv2.imread("images/markerPic.jpg")
-frame = cv2.imread("poseEstimationImages/room.jpg")
+frame = cv2.imread("images/markerPic.jpg")
+#
+# frame = cv2.imread("poseEstimationImages/room.jpg")
 resized = scaleImage(frame,10)
 gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
 parameters =  aruco.DetectorParameters_create()
