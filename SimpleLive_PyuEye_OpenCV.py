@@ -42,6 +42,7 @@ import sys
 import time
 import math
 from cv2 import aruco
+import msvcrt#for input events keyboard
 # ---------------------------------------------------------------------------------------------------------------------------------------
 #Camera constants
 cameraMatrix=np.array([[1.39600404e+03, 0.00000000e+00, 7.31255395e+02],
@@ -71,14 +72,37 @@ def estimatePose(frame):
     """
     Estimates the pose of the marker(s), which are detected beforehand in the frame
     input
-    frame: grayscaled imagine potentially including an marker
-    output: roationVector and translationVector of the markers detected
+    frame: grayscaled image potentially including an marker
+    output: roationVector and translationVector of the markers detected as tuple of (array([[[x,y,z]]],
     """
     corners, ids, rejectedImgPoints = aruco.detectMarkers(frame, aruco_dict, parameters=parameters)
     rotationVecs,translationVecs, _objectCorners = aruco.estimatePoseSingleMarkers(corners, size_of_marker , cameraMatrix, distortionMatrix)
     return rotationVecs,translationVecs
 def detectMarker(frame):
-    pass
+    """
+    Detects the markers in the picture
+    frame: grayscaled image potentially including a marker
+    output: number of markers detected
+    """
+    try:
+        corners, ids, rejectedImgPoints = aruco.detectMarkers(frame, aruco_dict, parameters=parameters)
+        numMarker=len(ids)
+    except TypeError :#TypeError happends if no markers detected and hence ids=[] thus no length
+        numMarker=0
+    return numMarker
+def kbfunc():
+    """
+    checks if a key has been hit and returns said key encoded in ASCII or if none has been
+    hit it returns false
+    """
+    #this is boolean for whether the keyboard has bene hit
+    x = msvcrt.kbhit()
+    if x:
+        #getch acquires the character encoded in binary ASCII
+        ret = msvcrt.getch()
+    else:
+        ret = False
+    return ret
 # ---------------------------------------------------------------------------------------------------------------------------------------
 
 # Variables
@@ -205,6 +229,9 @@ else:
 
 # Continuous image display
 counter=0
+frameDetected=0
+frameNotDetected=0
+start_time=time.time()
 while (nRet == ueye.IS_SUCCESS):
 
     # In order to display the image in an OpenCV window we need to...
@@ -221,32 +248,36 @@ while (nRet == ueye.IS_SUCCESS):
 
     # ---------------------------------------------------------------------------------------------------------------------------------------
     # Include image data processing here
-    # try:
-    #     data, bbox, rectifiedImage = qrDecoder.detectAndDecode(frame)
-    # except cv2.error:
-    #     print("error catched")
+    ###### Test if Marker have been detected/print Pose Estimation 
+    x = kbfunc() 
 
-    # if len(data) > 0:
-    #     print("yay found something")
-    #     dl, dr = calcDistances(bbox)
-    #     a_alpha, a_beta = calcTriangleAngles(dl, dr)
-    #     deviation = calcDeviationAngle(a_alpha, a_beta, bbox)
-    #     print("deviation is: " + str(math.degrees(deviation)) + " degrees")
+    #if we got a keyboard hit
+    if x != False and x.decode() == 's':
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        print("Number of Markers detected: ",detectMarker(gray))
 
-    # else:
-    cv2.imshow("SimpleLive_Python_uEye_OpenCV", frame)
-    
-    cv2.imwrite()
+        #print(estimatePose(gray))
+
+
+        cv2.imshow("DetectedOrNot", gray)
+    ###### Number of frames missed
     counter+=1
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    if detectMarker(gray):
+        frameDetected+=1
+    else:
+        frameNotDetected+=1
     # ---------------------------------------------------------------------------------------------------------------------------------------
-
+    
     # ...and finally display it
-
+    cv2.imshow("SimpleLive_Python_uEye_OpenCV", frame)
     # Press q if you want to end the loop
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 # ---------------------------------------------------------------------------------------------------------------------------------------
-
+end_time=time.time()
+print("this took: ",end_time-start_time, "seconds")
+print(counter,"frames were considered, ", frameDetected,"frames included a detected marker, ",frameNotDetected,"frames did not")
 # Releases an image memory that was allocated using is_AllocImageMem() and removes it from the driver management
 ueye.is_FreeImageMem(hCam, pcImageMemory, MemID)
 
